@@ -144,17 +144,27 @@ class VK:
    def uploadfiletoGoogle(self):
        dir_path = '/home/wooft/PycharmProjects/API VK/temp'
        list_to_upload, num_f = vk.prepare_photo_to_upload()
-       print(list_to_upload)
        print(f'Началась загрузка {num_f} фото на Google Drive:')
        for i in tqdm(list_to_upload[0:num_f]):
            upload_dir(dir_path, i[0])
        print('Загрузка прошла успешно!')
+       while True:
+           try:
+               answer = input('Вы хотите очистить файлы во временной папке? (Да/Нет)')
+               if answer == 'Да':
+                   for files in os.listdir(dir_path):
+                       os.remove(files)
+                   break
+               if answer == 'Нет':
+                   break
+           except Exception as e:
+               print('Неверный формат ввода')
 
 vktoken, yatoken = GetTokensByFile()
 access_token = vktoken
 user_id = '15565301'
 vk = VK(access_token, user_id)
 
-vk.load_photos()
-vk.uploadPhotostoyadi()
+# vk.load_photos()
+# vk.uploadPhotostoyadi()
 vk.uploadfiletoGoogle()

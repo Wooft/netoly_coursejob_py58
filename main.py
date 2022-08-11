@@ -165,6 +165,6 @@ access_token = vktoken
 user_id = '15565301'
 vk = VK(access_token, user_id)
 
-# vk.load_photos()
-# vk.uploadPhotostoyadi()
+vk.load_photos()
+vk.uploadPhotostoyadi()
 vk.uploadfiletoGoogle()

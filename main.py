@@ -106,7 +106,7 @@ class VK:
            try:
                answer = input('По умолчанию будет загружено 5 фото, хотите установить другое количество фотографий для выгрузки? (Да/Нет)')
                if answer == 'Да':
-                   num_f = int(input("Введите количество фото, которое хотите загрузить на Яндекс Диск: "))
+                   num_f = int(input("Введите количество фото, которое хотите загрузить: "))
                    break
                if answer == 'Нет':
                    num_f = 5
@@ -127,6 +127,7 @@ class VK:
        return result, num_f
 
    def uploadPhotostoyadi(self):
+       print('Подготовка к загрузке фото на Яндекс Диск')
        list_to_upload, num_f = vk.prepare_photo_to_upload()
        print(f'Началась загрузка {num_f} фото на Яндекс.диск:')
        for i in tqdm(list_to_upload[0:num_f]):
@@ -142,6 +143,7 @@ class VK:
        uploader.upload(path_to_file, file_destination)
 
    def uploadfiletoGoogle(self):
+       print('Подготовка к загрузке фото на Google Drive')
        dir_path = '/home/wooft/PycharmProjects/API VK/temp'
        list_to_upload, num_f = vk.prepare_photo_to_upload()
        print(f'Началась загрузка {num_f} фото на Google Drive:')

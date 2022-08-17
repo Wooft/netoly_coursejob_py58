@@ -63,6 +63,8 @@ class VK:
        count = 0  # счетчик порядкового номера фото
        count_files = 0  # счетчик количества повторений фала для фото с одинаковым количество лайков
        ready_upload = {} #Словарь для хранения списка фото, готовых к загрузке
+       if 'temp' not in os.listdir():
+           os.mkdir('temp')
        files_list = os.listdir('/home/wooft/PycharmProjects/API VK/temp') #Получение списка файлов временной длиректории
        os.chdir('/home/wooft/PycharmProjects/API VK/temp')
        d_photos = vk.get_photos_byid() #Получаем список фото из профиля

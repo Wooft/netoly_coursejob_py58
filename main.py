@@ -149,6 +149,7 @@ class VK:
         for i in tqdm(list_to_upload[0:num_f]):
             vk.uploadFiletoDisk(i[0])
         print('Загрузка прошла успешно!')
+        vk.clear_temp_dir()
 
     def uploadFiletoDisk(self, files):
         vktoken, yatoken = GetTokensByFile()
@@ -156,7 +157,6 @@ class VK:
         TOKEN = yatoken
         uploader = YaUploader(token=TOKEN)
         uploader.upload(os.path.join(temp_path, files), file_destination, files)
-        vk.clear_temp_dir()
 
     def uploadfiletoGoogle(self):
         print('Подготовка к загрузке фото на Google Drive')
@@ -191,6 +191,6 @@ access_token = vktoken
 user_id = input('Введите ID пользователя: ')
 vk = VK(access_token, user_id)
 
-# vk.load_photos()
+vk.load_photos()
 vk.uploadPhotostoyadi()
 vk.uploadfiletoGoogle()

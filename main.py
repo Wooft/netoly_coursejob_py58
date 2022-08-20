@@ -36,7 +36,6 @@ class VK:
         url = 'https://api.vk.com/method/photos.get'
         albums = {'Фото профиля:': 'profile', 'Фото со стены': 'wall'}
         albums.update(vk.get_albums())
-        print(albums.values())
         print(f'Список доступных альбомов: {albums}')
         while True:
             try:
@@ -79,8 +78,7 @@ class VK:
         os.chdir(temp_path)
         d_photos = vk.get_photos_byid()  # Получаем список фото из профиля
         download_dict = {}
-        for elements in d_photos['response'][
-            'items']:  # Сохраняем фото в папку temp, присваиваем каждому фото название в виде количества лайков
+        for elements in d_photos['response']['items']:  # Сохраняем фото в папку temp, присваиваем каждому фото название в виде количества лайков
             file_info = {}  # Создаем словарь для хранения инфо о файле
             flag = 0  # временная переменная флаг
             list_of_h = []  # список для хранения данных о разрешении фото
@@ -133,6 +131,8 @@ class VK:
                 files_list.append(files)
         if len(files_list) == 0:
             print('Нет файлов для загрузки')
+        elif len(files_list) < num_f:
+            num_f = len(files_list)
         for elements in files_list:
             im = Image.open(elements)
             res = im.size[0] * im.size[1]  # вычисление количества пикселей в фото

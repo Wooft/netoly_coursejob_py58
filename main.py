@@ -7,7 +7,7 @@ from ya_di import YaUploader
 from PIL import Image
 from tqdm import tqdm
 import pathlib
-from GDrive import upload_dir
+#from GDrive import upload_dir
 
 
 def GetTokensByFile():
@@ -66,7 +66,6 @@ class VK:
 
     def load_photos(self):
         list_download_photos = []  # создаем список скачаных фото
-        count = 0  # счетчик порядкового номера фото
         count_files = 0  # счетчик количества повторов для фото с одинаковым количество лайков
         ready_upload = {}  # Словарь для хранения списка фото, готовых к загрузке
         if 'temp' not in os.listdir(dir_path):
@@ -78,6 +77,7 @@ class VK:
         os.chdir(temp_path)
         d_photos = vk.get_photos_byid()  # Получаем список фото из профиля
         download_dict = {}
+        list_names_photo = []
         for elements in d_photos['response']['items']:  # Сохраняем фото в папку temp, присваиваем каждому фото название в виде количества лайков
             file_info = {}  # Создаем словарь для хранения инфо о файле
             flag = 0  # временная переменная флаг
@@ -85,15 +85,14 @@ class VK:
             file_info['file_name'] = f'{elements["likes"]["count"]}'
             name_file = file_info['file_name']  # промежуточная переменная для хранения имени файла
             while flag != 1:  # цикл установки уникального имени файла
-                if name_file in file_info.keys():  # проверка на то, есть ли новый файл в списке файлов
+                if name_file in list_names_photo:  # проверка на то, есть ли новый файл в списке файлов
                     count_files += 1  # увеличиваем счетчик повтора на 1
                     name_file = file_info['file_name']  # переприсваиваем переменную
                     name_file = f"{name_file}({count_files})"  # устанавливаем имя фото на тип likes(count)
                 else:
-                    file_info[
-                        'file_name'] = f'{name_file}.jpg'  # если имя файла уникально то изменяем флаг на 1 и прерываем цикл
+                    file_info['file_name'] = f'{name_file}.jpg'  # если имя файла уникально то изменяем флаг на 1 и прерываем цикл
+                    list_names_photo.append(name_file)
                     flag += 1
-            count += 1
             for values in elements['sizes']:  # Получение списка разрешений (по высоте) для каждого фото
                 list_of_h.append(values['height'])
             max_heigt = max(list_of_h)  # отбор максимального разрешения для фото
@@ -158,14 +157,14 @@ class VK:
         uploader = YaUploader(token=TOKEN)
         uploader.upload(os.path.join(temp_path, files), file_destination, files)
 
-    def uploadfiletoGoogle(self):
-        print('Подготовка к загрузке фото на Google Drive')
-        list_to_upload, num_f = vk.prepare_photo_to_upload()
-        print(f'Началась загрузка {num_f} фото на Google Drive:')
-        for i in tqdm(list_to_upload[0:num_f]):
-            upload_dir(temp_path, i[0])
-        print('Загрузка прошла успешно!')
-        vk.clear_temp_dir()
+    # def uploadfiletoGoogle(self):
+    #     print('Подготовка к загрузке фото на Google Drive')
+    #     list_to_upload, num_f = vk.prepare_photo_to_upload()
+    #     print(f'Началась загрузка {num_f} фото на Google Drive:')
+    #     for i in tqdm(list_to_upload[0:num_f]):
+    #         upload_dir(temp_path, i[0])
+    #     print('Загрузка прошла успешно!')
+    #     vk.clear_temp_dir()
 
     def clear_temp_dir(self):
         while True:
@@ -192,5 +191,5 @@ user_id = input('Введите ID пользователя: ')
 vk = VK(access_token, user_id)
 
 vk.load_photos()
-vk.uploadPhotostoyadi()
-vk.uploadfiletoGoogle()
+#vk.uploadPhotostoyadi()
+#vk.uploadfiletoGoogle()

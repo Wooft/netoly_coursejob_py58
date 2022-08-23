@@ -7,7 +7,7 @@ from ya_di import YaUploader
 from PIL import Image
 from tqdm import tqdm
 import pathlib
-#from GDrive import upload_dir
+from GDrive import upload_dir
 
 
 def GetTokensByFile():
@@ -157,14 +157,14 @@ class VK:
         uploader = YaUploader(token=TOKEN)
         uploader.upload(os.path.join(temp_path, files), file_destination, files)
 
-    # def uploadfiletoGoogle(self):
-    #     print('Подготовка к загрузке фото на Google Drive')
-    #     list_to_upload, num_f = vk.prepare_photo_to_upload()
-    #     print(f'Началась загрузка {num_f} фото на Google Drive:')
-    #     for i in tqdm(list_to_upload[0:num_f]):
-    #         upload_dir(temp_path, i[0])
-    #     print('Загрузка прошла успешно!')
-    #     vk.clear_temp_dir()
+    def uploadfiletoGoogle(self):
+        print('Подготовка к загрузке фото на Google Drive')
+        list_to_upload, num_f = vk.prepare_photo_to_upload()
+        print(f'Началась загрузка {num_f} фото на Google Drive:')
+        for i in tqdm(list_to_upload[0:num_f]):
+            upload_dir(temp_path, i[0])
+        print('Загрузка прошла успешно!')
+        vk.clear_temp_dir()
 
     def clear_temp_dir(self):
         while True:
@@ -191,5 +191,5 @@ user_id = input('Введите ID пользователя: ')
 vk = VK(access_token, user_id)
 
 vk.load_photos()
-#vk.uploadPhotostoyadi()
-#vk.uploadfiletoGoogle()
+vk.uploadPhotostoyadi()
+vk.uploadfiletoGoogle()

@@ -92,6 +92,7 @@ class VK:
                     name_file = f"{name_file}({count_files})"  # устанавливаем имя фото на тип likes(count)
                 else:
                     file_info['file_name'] = f'{name_file}.jpg'  # если имя файла уникально то изменяем флаг на 1 и прерываем цикл
+
                     j_dict['file_name'] = file_info['file_name']
                     list_names_photo.append(name_file)
                     flag += 1

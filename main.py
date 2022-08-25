@@ -3,7 +3,7 @@ from pprint import pprint
 import requests
 import wget
 import json
-from ya_di import YaUploader
+from ya_di import YaUploader, YandexDisk
 from PIL import Image
 from tqdm import tqdm
 import pathlib
@@ -66,9 +66,8 @@ class VK:
 
     def load_photos(self):
         list_download_photos = []  # создаем список скачаных фото
-        count = 0  # счетчик порядкового номера фото
         count_files = 0  # счетчик количества повторов для фото с одинаковым количество лайков
-        ready_upload = {}  # Словарь для хранения списка фото, готовых к загрузке
+        ready_upload = []  # Словарь для хранения списка фото, готовых к загрузке
         if 'temp' not in os.listdir(dir_path):
             os.mkdir('temp')
         if len(os.listdir(temp_path)) != 0:
@@ -78,39 +77,42 @@ class VK:
         os.chdir(temp_path)
         d_photos = vk.get_photos_byid()  # Получаем список фото из профиля
         download_dict = {}
+        list_names_photo = []
         for elements in d_photos['response']['items']:  # Сохраняем фото в папку temp, присваиваем каждому фото название в виде количества лайков
+            j_dict = {}
             file_info = {}  # Создаем словарь для хранения инфо о файле
             flag = 0  # временная переменная флаг
             list_of_h = []  # список для хранения данных о разрешении фото
             file_info['file_name'] = f'{elements["likes"]["count"]}'
             name_file = file_info['file_name']  # промежуточная переменная для хранения имени файла
             while flag != 1:  # цикл установки уникального имени файла
-                if name_file in file_info.keys():  # проверка на то, есть ли новый файл в списке файлов
+                if name_file in list_names_photo:  # проверка на то, есть ли новый файл в списке файлов
                     count_files += 1  # увеличиваем счетчик повтора на 1
                     name_file = file_info['file_name']  # переприсваиваем переменную
                     name_file = f"{name_file}({count_files})"  # устанавливаем имя фото на тип likes(count)
                 else:
-                    file_info[
-                        'file_name'] = f'{name_file}.jpg'  # если имя файла уникально то изменяем флаг на 1 и прерываем цикл
+                    file_info['file_name'] = f'{name_file}.jpg'  # если имя файла уникально то изменяем флаг на 1 и прерываем цикл
+                    j_dict['file_name'] = file_info['file_name']
+                    list_names_photo.append(name_file)
                     flag += 1
-            count += 1
             for values in elements['sizes']:  # Получение списка разрешений (по высоте) для каждого фото
                 list_of_h.append(values['height'])
             max_heigt = max(list_of_h)  # отбор максимального разрешения для фото
             for values in elements['sizes']:
                 if values['height'] == max_heigt:
                     file_info['size'] = values['type']
+                    j_dict['size'] = values['type']
                     link = values['url']  # получаем URL для фото в максимальном разрешении
             download_dict[file_info['file_name']] = link
             list_download_photos.append(file_info)
             count_files = 0
-        print(download_dict)
+            ready_upload.append(j_dict)
         for keys, elements in tqdm(download_dict.items()):
             wget.download(elements, keys)
         print('Все фото скачаны в папку "temp"')
+        pprint(ready_upload)
         with open('info.json', 'w+') as file_obj:
             json.dump(ready_upload, file_obj)  # сохраняем метаданных в json файл
-
     def prepare_photo_to_upload(self):
         os.chdir(temp_path)
         files_list = []  # создание пустого списка ддля того, чтобы добавить в него все фото из папки temp
@@ -137,13 +139,13 @@ class VK:
             im = Image.open(elements)
             res = im.size[0] * im.size[1]  # вычисление количества пикселей в фото
             d_photos[elements] = res  # сохраняем разрешение в словарь, где ключ - имя фото
-        result = sorted(d_photos.items(), key=lambda x: (-x[1], x[
-            0]))  # сортировка словаря и сохранение значений в список кортежей, где максимальные значения разрешений находятся в начале списка
+        result = sorted(d_photos.items(), key=lambda x: (-x[1], x[0]))  # сортировка словаря и сохранение значений в список кортежей, где максимальные значения разрешений находятся в начале списка
         return result, num_f
 
     def uploadPhotostoyadi(self):
         os.chdir(temp_path)
         print('Подготовка к загрузке фото на Яндекс Диск')
+        vk.create_folder()
         list_to_upload, num_f = vk.prepare_photo_to_upload()
         print(f'Началась загрузка {num_f} фото на Яндекс.диск:')
         for i in tqdm(list_to_upload[0:num_f]):
@@ -156,7 +158,7 @@ class VK:
         file_destination = f'Netology_Project/{files}'
         TOKEN = yatoken
         uploader = YaUploader(token=TOKEN)
-        uploader.upload(os.path.join(temp_path, files), file_destination, files)
+        uploader.upload(os.path.join(temp_path, files), file_destination)
 
     def uploadfiletoGoogle(self):
         print('Подготовка к загрузке фото на Google Drive')
@@ -180,14 +182,29 @@ class VK:
             except Exception as e:
                 print('Данные введены неверно, попробуйте снова!')
 
-
+    def create_folder(self):
+        vktoken, yatoken = GetTokensByFile()
+        TOKEN = yatoken
+        folders = YandexDisk(token = TOKEN)
+        while True:
+            try:
+                answer = input('Хотите создать папку "Netology_Project" для загрузки в неё файлов (да/нет)?')
+                if answer.lower() == 'да':
+                    response = folders.create_folder('Netology_Project')
+                    break
+                if answer.lower() == 'нет':
+                    response = None
+                    break
+            except Exception as e:
+                print('Данные введены неверно, попробуйте снова!')
+        return response
 
 
 dir_path = pathlib.Path.cwd()
 temp_path = os.path.join(dir_path, 'temp')
-
 vktoken, yatoken = GetTokensByFile()
 access_token = vktoken
+TOKEN = yatoken
 user_id = input('Введите ID пользователя: ')
 vk = VK(access_token, user_id)
 

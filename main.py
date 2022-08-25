@@ -111,7 +111,6 @@ class VK:
         for keys, elements in tqdm(download_dict.items()):
             wget.download(elements, keys)
         print('Все фото скачаны в папку "temp"')
-        pprint(ready_upload)
         with open('info.json', 'w+') as file_obj:
             json.dump(ready_upload, file_obj)  # сохраняем метаданных в json файл
     def prepare_photo_to_upload(self):
